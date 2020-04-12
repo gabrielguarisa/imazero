@@ -3,8 +3,8 @@
 
 #include <cstdint>
 #include <unordered_map>
+#include <utility>
 #include <vector>
-#include <utility> 
 
 #include "../common/math.hpp"
 #include "../common/utils.hpp"
@@ -37,10 +37,20 @@ public:
     uint64_t addr = __binaryToDecimal(image);
     auto it = __memory.find(addr);
     if (it == __memory.end()) {
-      it = __memory.insert(it, std::pair<uint64_t, std::vector<uint32_t>>(addr, std::vector<uint32_t>(__ndim, 0)));
-    } 
+      it = __memory.insert(
+          it, std::pair<uint64_t, std::vector<uint32_t>>(addr, std::vector<uint32_t>(__ndim, 0)));
+    }
 
     it->second[dim]++;
+  }
+
+  std::vector<uint32_t> read(const uint8_t *image) {
+    uint64_t addr = __binaryToDecimal(image);
+    auto it = __memory.find(addr);
+    if (it == __memory.end()) {
+      return std::vector<uint32_t>(__ndim, 0);
+    }
+    return it->second;
   }
 };
 

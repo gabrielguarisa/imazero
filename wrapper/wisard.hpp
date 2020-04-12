@@ -17,6 +17,13 @@ void *memory_create(void *const __mapping, const int length, const uint ndim) {
 
 void memory_destroy(void *self) { delete MEMORY_SELF; }
 
-void memory_write(void *self, void *const image, uint dim) { MEMORY_SELF->write((uint8_t *)image, dim); }
+void memory_write(void *self, void *const image, uint dim) {
+  MEMORY_SELF->write((uint8_t *)image, dim);
+}
+
+void memory_read(void *self, void *const image, void *const output) {
+  std::vector<uint32_t> result = MEMORY_SELF->read((uint8_t *)image);
+  std::copy(result.begin(), result.end(), (uint32_t *)output);
+}
 }
 #endif // __WISARD_WRAPPER
