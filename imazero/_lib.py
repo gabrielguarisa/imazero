@@ -18,3 +18,18 @@ def get_dll():
 
 
 flib = CDLL(get_dll())
+
+
+class WrapperBase:
+    INVALID_ARGUMENTS = "Arguments types invalids!"
+
+    def __del__(self):
+        if self.ptr:
+            self.destroy(self.ptr)
+            self.ptr = None
+
+    def validate(self):
+        if getattr(self, "ptr", None) is None:
+            raise RuntimeError("class pointer is null!")
+        if getattr(self, "destroy", None) is None:
+            raise RuntimeError("destructor not found!")

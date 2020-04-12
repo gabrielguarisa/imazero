@@ -9,13 +9,14 @@
 
 extern "C" {
 
-void *memory_create(void *const _ptr, const int length) {
+void *memory_create(void *const _ptr, const int length, const uint ndim) {
   uint32_t *const ptr = (uint32_t *)_ptr;
   std::vector<uint32_t> mapping(ptr, ptr + length);
-  return static_cast<void *>(new Memory(mapping));
+  return static_cast<void *>(new Memory(mapping, ndim));
 }
 
 void memory_destroy(void *self) { delete MEMORY_SELF; }
-}
 
+void memory_write(void *self, void *const _ptr) { MEMORY_SELF->write((uint8_t *)_ptr); }
+}
 #endif // __WISARD_WRAPPER
