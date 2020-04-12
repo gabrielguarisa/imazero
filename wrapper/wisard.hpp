@@ -1,33 +1,32 @@
 #if !defined(__WISARD_WRAPPER)
 #define __WISARD_WRAPPER
 
-#include "../src/wisard/memory.hpp"
 #include "../src/wisard/wisard.hpp"
 #include <cstdint>
 #include <vector>
 
-#define MEMORY_SELF (static_cast<Memory *>(self))
+// #define MEMORY_SELF (static_cast<Memory *>(self))
 #define WISARD_SELF (static_cast<WiSARD *>(self))
 
 extern "C" {
 
-// Memory
-void *memory_create(void *const __mapping, const int length, const uint ndim) {
-  uint32_t *const _mapping = (uint32_t *)__mapping;
-  std::vector<uint32_t> mapping(_mapping, _mapping + length);
-  return static_cast<void *>(new Memory(mapping, ndim));
-}
+// // Memory
+// void *memory_create(void *const __mapping, const int length, const uint ndim) {
+//   uint32_t *const _mapping = (uint32_t *)__mapping;
+//   std::vector<uint32_t> mapping(_mapping, _mapping + length);
+//   return static_cast<void *>(new Memory(mapping, ndim));
+// }
 
-void memory_destroy(void *self) { delete MEMORY_SELF; }
+// void memory_destroy(void *self) { delete MEMORY_SELF; }
 
-void memory_write(void *self, void *const image, uint dim) {
-  MEMORY_SELF->write((uint8_t *)image, dim);
-}
+// void memory_write(void *self, void *const image, uint dim) {
+//   MEMORY_SELF->write((uint8_t *)image, dim);
+// }
 
-void memory_read(void *self, void *const image, void *const output) {
-  std::vector<uint32_t> result = MEMORY_SELF->read((uint8_t *)image);
-  std::copy(result.begin(), result.end(), (uint32_t *)output);
-}
+// void memory_read(void *self, void *const image, void *const output) {
+//   std::vector<uint32_t> result = MEMORY_SELF->read((uint8_t *)image);
+//   std::copy(result.begin(), result.end(), (uint32_t *)output);
+// }
 
 // WiSARD
 void *wisard_create(void *const __mapping, const uint rows, const uint cols, const uint ndim,
@@ -45,6 +44,11 @@ void wisard_destroy(void *self) { delete WISARD_SELF; }
 
 void wisard_train(void *self, void *const X, void *const y, uint lenght) {
   WISARD_SELF->train((uint8_t *)X, (uint8_t *)y, lenght);
+}
+
+void wisard_classify(void *self, void *const X, void *const output, uint lenght) {
+  std::vector<uint32_t> votes = WISARD_SELF->classify((uint8_t *)X, lenght);
+  std::copy(votes.begin(), votes.end(), (uint32_t *)output);
 }
 }
 #endif // __WISARD_WRAPPER

@@ -1,11 +1,11 @@
 #if !defined(__MATH)
 #define __MATH
 
+#include <algorithm>
 #include <cmath>
 #include <cstdint>
-#include <vector>
-#include <algorithm>
 #include <random>
+#include <vector>
 
 namespace math {
 uint64_t ipow(int base, int exp) {
@@ -22,8 +22,36 @@ uint64_t ipow(int base, int exp) {
   return result;
 }
 
-template <typename T> double sum(const std::vector<T> &v) {
+template <typename T> T sum(const std::vector<T> &v) {
   return std::accumulate(std::begin(v), std::end(v), 0.0);
+}
+
+template <typename T> void transpose(std::vector<std::vector<T>> &v) {
+  if (v.size() == 0)
+    return;
+
+  std::vector<std::vector<T>> trans_vec(v[0].size(), std::vector<T>());
+
+  for (size_t i = 0; i < v.size(); i++) {
+    for (size_t j = 0; j < v[i].size(); j++) {
+      trans_vec[j].push_back(v[i][j]);
+    }
+  }
+
+  v = trans_vec;
+}
+
+template <typename T> std::vector<T> sum2D(const std::vector<std::vector<T>> &v, int axis) {
+  std::vector<std::vector<T>> arr(v);
+  if (axis == 0) {
+    transpose(arr);
+  }
+  std::vector<T> output(arr.size());
+
+  for (size_t i = 0; i < output.size(); i++) {
+    output[i] = sum(arr[i]);
+  }
+  return output;
 }
 
 template <typename T> double mean(const std::vector<T> &v) { return sum(v) / v.size(); }

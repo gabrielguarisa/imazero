@@ -20,9 +20,16 @@ class WiSARD(WrapperBase):
         self.wisard_train.argtypes = [c_void_p, c_void_p, c_void_p, c_int]
         self.wisard_train.restype = None
 
+        self.wisard_classify = flib.wisard_classify
+        self.wisard_classify.argtypes = [c_void_p, c_void_p, c_void_p, c_int]
+        self.wisard_classify.restype = None
+
     def fit(self, X, y):
         X = self.list_to_ndarray(X, dtype=np.uint8)
         y = self.list_to_ndarray(y, dtype=np.uint8)
+
+        if X.ndim != 2:
+            raise Exception("X needs to be a 2D array!")
 
         if self.ptr == None:
             wisard_create = flib.wisard_create
@@ -36,3 +43,15 @@ class WiSARD(WrapperBase):
 
         self.wisard_train(self.ptr, X.ctypes.data, y.ctypes.data, y.size)
         return self
+
+    def predict(self, X):
+        X = self.list_to_ndarray(X, dtype=np.uint8)
+        if X.ndim != 2:
+            raise Exception("X needs to be a 2D array!")
+
+        if self.ptr == None:
+            raise Exception("Run fit first!")
+
+        output = np.zeros(len(X), dtype=np.uint32)
+        self.wisard_classify(self.ptr, X.ctypes.data, output.ctypes.data, len(X))
+        return output
