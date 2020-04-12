@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <unordered_map>
 #include <vector>
+#include <utility> 
 
 #include "../common/math.hpp"
 #include "../common/utils.hpp"
@@ -32,8 +33,14 @@ public:
     __memory.clear();
   }
 
-  void write(const uint8_t *image) {
-    utils::print(__binaryToDecimal(image));
+  void write(const uint8_t *image, uint dim) {
+    uint64_t addr = __binaryToDecimal(image);
+    auto it = __memory.find(addr);
+    if (it == __memory.end()) {
+      it = __memory.insert(it, std::pair<uint64_t, std::vector<uint32_t>>(addr, std::vector<uint32_t>(__ndim, 0)));
+    } 
+
+    it->second[dim]++;
   }
 };
 

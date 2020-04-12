@@ -21,8 +21,8 @@ class Memory(WrapperBase):
         self.memory_write.argtypes = [c_void_p, c_void_p]
         self.memory_write.restype = None
 
-    def write(self, image):
+    def write(self, image, dim):
         if type(image) == list or image.dtype.name != "uint8":
             image = np.array(image, dtype=np.uint8)
 
-        self.memory_write(self.ptr, image.ctypes.data)
+        self.memory_write(self.ptr, image.ctypes.data, dim)
