@@ -30,16 +30,21 @@ void memory_read(void *self, void *const image, void *const output) {
 }
 
 // WiSARD
-void *wisard_create(void *const __mapping, const uint rows, const uint cols) {
+void *wisard_create(void *const __mapping, const uint rows, const uint cols, const uint ndim,
+                    const uint entrySize) {
   uint32_t *const _mapping = (uint32_t *)__mapping;
   std::vector<std::vector<uint32_t>> mapping(rows);
 
   for (size_t i = 0; i < rows; i++) {
     mapping[i] = std::vector<uint32_t>(_mapping + (i * cols), _mapping + (i * cols) + cols);
   }
-  return static_cast<void *>(new WiSARD(mapping));
+  return static_cast<void *>(new WiSARD(mapping, ndim, entrySize));
 }
 
 void wisard_destroy(void *self) { delete WISARD_SELF; }
+
+void wisard_train(void *self, void *const X, void *const y, uint lenght) {
+  WISARD_SELF->train((uint8_t *)X, (uint8_t *)y, lenght);
+}
 }
 #endif // __WISARD_WRAPPER

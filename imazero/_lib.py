@@ -1,4 +1,5 @@
 from ctypes import CDLL
+import numpy as np
 
 
 def get_dll():
@@ -21,7 +22,10 @@ flib = CDLL(get_dll())
 
 
 class WrapperBase:
-    INVALID_ARGUMENTS = "Arguments types invalids!"
+    def __init__(self, destroy, ptr=None):
+        self.destroy = destroy
+        self.ptr = ptr
+        self.INVALID_ARGUMENTS = "Arguments types invalids!"
 
     def __del__(self):
         if self.ptr:
@@ -33,3 +37,9 @@ class WrapperBase:
             raise RuntimeError("class pointer is null!")
         if getattr(self, "destroy", None) is None:
             raise RuntimeError("destructor not found!")
+
+    def list_to_ndarray(self, arr, dtype):
+        if type(arr) == list or arr.dtype != dtype:
+            arr = np.array(arr, dtype=dtype)
+
+        return arr
