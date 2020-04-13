@@ -19,7 +19,7 @@ public:
   WiSARD(const std::vector<std::vector<uint32_t>> &mapping, uint ndim, uint entrySize)
       : __mapping(mapping), __ndim(ndim), __entrySize(entrySize) {
     __memories = std::vector<Memory>(mapping.size(), Memory(ndim));
-    __bleaching.setConfidenceThreshold(0.1);
+    // __bleaching.setConfidenceThreshold(0.1);
   }
 
   ~WiSARD() {

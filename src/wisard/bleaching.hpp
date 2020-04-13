@@ -9,6 +9,52 @@ class Bleaching {
 private:
   double __confidenceThreshold;
 
+  bool __isThereAmbiguity(const std::vector<double> &counters) {
+    double biggest = 0;
+    bool ambiguity = false;
+    for (size_t i = 0; i < counters.size(); i++)
+      if (counters[i] > biggest) {
+        biggest = counters[i];
+        ambiguity = false;
+      } else if ((biggest - counters[i]) < 1) {
+        ambiguity = true;
+      }
+    return (ambiguity && biggest > 1);
+  }
+
+public:
+  Bleaching() {}
+
+  std::vector<double> run(const std::vector<std::vector<uint32_t>> &votes) {
+    uint b = 0;
+    std::vector<double> counters;
+
+    do {
+      double min = 0;
+      bool firstTime = true;
+      counters = std::vector<double>(votes[0].size(), 0.0);
+      for (size_t l = 0; l < votes[0].size(); l++) { // label
+        for (size_t m = 0; m < votes.size(); m++) {  // memory
+          if (votes[m][l] > b) {
+            counters[l] += 1;
+
+            if (firstTime || votes[m][l] < min) {
+              min = votes[m][l];
+              firstTime = false;
+            }
+          }
+        }
+      }
+      b = min;
+    } while (__isThereAmbiguity(counters));
+    return counters;
+  }
+};
+
+class BestBleaching {
+private:
+  double __confidenceThreshold;
+
   double __calcConfidence(const std::vector<double> &counters) {
     double maxValue = 0.0;
     double secondMax = 0.0;
@@ -34,7 +80,7 @@ private:
   }
 
 public:
-  Bleaching() {}
+  BestBleaching() : __confidenceThreshold(0.1) {}
 
   std::vector<double> run(const std::vector<std::vector<uint32_t>> &votes) {
     uint b = 1;
