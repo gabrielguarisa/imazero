@@ -2,6 +2,7 @@
 #define __WISARD
 
 #include "../common/utils.hpp"
+#include "bleaching.hpp"
 #include "memory.hpp"
 #include <cstdint>
 #include <vector>
@@ -12,12 +13,15 @@ private:
   std::vector<Memory> __memories;
   uint __ndim;
   uint __entrySize;
+  Bleaching __bleaching;
 
 public:
   WiSARD(const std::vector<std::vector<uint32_t>> &mapping, uint ndim, uint entrySize)
       : __mapping(mapping), __ndim(ndim), __entrySize(entrySize) {
     __memories = std::vector<Memory>(mapping.size(), Memory(ndim));
+    __bleaching.setConfidenceThreshold(0.1);
   }
+
   ~WiSARD() {
     __mapping.clear();
     __memories.clear();
@@ -47,8 +51,11 @@ public:
     std::vector<std::vector<std::vector<uint32_t>>> votes = getVotes(X, lenght);
 
     for (size_t i = 0; i < votes.size(); i++) {
-      std::vector<uint32_t> sum_values = math::sum2D(votes[i], 0);
-      output[i] = math::argmax(sum_values);
+      std::vector<double> prob = __bleaching.run(votes[i]); 
+      output[i] = math::argmax(prob);
+
+      // std::vector<uint32_t> sum_values = math::sum2D(votes[i], 0);
+      // output[i] = math::argmax(sum_values);
     }
     return output;
   }

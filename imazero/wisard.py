@@ -55,3 +55,43 @@ class WiSARD(WrapperBase):
         output = np.zeros(len(X), dtype=np.uint32)
         self.wisard_classify(self.ptr, X.ctypes.data, output.ctypes.data, len(X))
         return output
+
+    def score(self, X, y):
+        y_pred = self.predict(X)
+        total = 0
+        for i in range(len(y)):
+            total += 1 if y[i] == y_pred[i] else 0
+
+        return total / len(y)
+
+
+class RandomWiSARD(WiSARD):
+    def __init__(
+        self, tuple_size, entry_size, address_replication=0, complete_addressing=True
+    ):
+        mapping = self._random_mapping(tuple_size, entry_size, complete_addressing)
+        for _ in range(address_replication):
+            mapping = np.concatenate(
+                (
+                    mapping,
+                    self._random_mapping(tuple_size, entry_size, complete_addressing),
+                )
+            )
+        super().__init__(mapping)
+
+    def _random_mapping(self, tuple_size, entry_size, complete_addressing=True):
+        indexes = np.arange(entry_size)
+        num_rams = entry_size // tuple_size
+        remainder = tuple_size - (entry_size % tuple_size)
+
+        if remainder > 0:
+            num_rams += 1
+            if complete_addressing:
+                indexes = np.concatenate(
+                    (indexes, np.random.randint(entry_size, size=remainder))
+                )
+            else:
+                indexes = np.concatenate((indexes, np.full(remainder, -1)))
+
+        np.random.shuffle(indexes)
+        return np.reshape(indexes, (num_rams, tuple_size))
