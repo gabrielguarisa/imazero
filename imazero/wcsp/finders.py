@@ -3,11 +3,17 @@ import numpy as np
 
 
 class TemplateFinder(ABC):
-    def __init__(self):
+    def __init__(self, name):
+        self.name = name
         super().__init__()
 
-    @abstractmethod
     def __str__(self):
+        return self.name
+
+    def get_name(self):
+        return self.name
+
+    def set_shape(self, shape):
         pass
 
     @abstractmethod
@@ -16,14 +22,14 @@ class TemplateFinder(ABC):
 
 
 class PatternFinder(TemplateFinder):
-    def __init__(self, shape, patterns):
+    def __init__(self, shape, patterns, name="PatternFinder"):
         self._shape = shape
         self._patterns = patterns
         self._window_shape = self._patterns[0].shape
-        super().__init__()
+        super().__init__(name)
 
-    def __str__(self):
-        return "PatternFinder"
+    def set_shape(self, shape):
+        self._shape = shape
 
     def search(self, arr):
         addresses = []
@@ -46,11 +52,8 @@ class PatternFinder(TemplateFinder):
 
 
 class OnesFinder(TemplateFinder):
-    def __init__(self):
-        super().__init__()
-
-    def __str__(self):
-        return "OnesFinder"
+    def __init__(self, name="OnesFinder"):
+        super().__init__(name)
 
     def search(self, arr):
         addresses = [[]]
@@ -62,7 +65,7 @@ class OnesFinder(TemplateFinder):
         return addresses
 
 
-def get_line_finder(shape):
+def get_line_finder(shape=None):
     return PatternFinder(
         shape,
         [
@@ -71,10 +74,11 @@ def get_line_finder(shape):
             np.array([[1, 1], [0, 0]]),
             np.array([[0, 0], [1, 1]]),
         ],
+        name="LineFinder",
     )
 
 
-def get_diagonal_finder(shape):
+def get_diagonal_finder(shape=None):
     return PatternFinder(
         shape,
         [
@@ -85,4 +89,5 @@ def get_diagonal_finder(shape):
             np.array([[1, 0], [0, 1]]),
             np.array([[0, 1], [1, 0]]),
         ],
+        name="DiagonalFinder",
     )

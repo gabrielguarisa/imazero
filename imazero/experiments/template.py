@@ -31,13 +31,20 @@ class TemplateExperiment(ABC):
         return df.astype(self.header_map)
 
     @abstractmethod
+    def _prep(self, ds):
+        pass
+
+    @abstractmethod
     def _calculate_score(self, ds, tuple_size):
         pass
 
     def run(self, ds):
         print(
-            "=== INFO ===\nExperimento: {}\nDataset: {}".format(self.experiment_name, ds.get_name())
+            "=== INFO ===\nExperimento: {}\nDataset: {}".format(
+                self.experiment_name, ds.get_name()
+            )
         )
+        self._prep(ds)
         filename = self.get_filename(ds.dataset_name, ds.binarization_name)
         df = self.load(filename)
         tuple_sizes = valid_tuple_sizes(ds.entry_size)

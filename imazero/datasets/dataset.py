@@ -50,11 +50,7 @@ class Dataset:
         else:
             self.entry_size = entry_size
 
-        if shape == None:
-            self.rows = 0
-            self.cols = 0
-        else:
-            self.rows, self.cols = shape
+        self.shape = shape
 
     def get_data(self):
         return self.X_train, self.X_test, self.y_train, self.y_test
@@ -64,9 +60,6 @@ class Dataset:
 
     def __str__(self):
         return "{}_{}".format(self.dataset_name, self.binarization_name)
-
-    def get_shape(self):
-        return (self.rows, self.cols)
 
     def save(self, folder):
         if folder[-1] != "/":
@@ -88,8 +81,7 @@ class Dataset:
                     "test_filename": "{}.wpkds".format(test_filename),
                     "num_classes": self.num_classes,
                     "entry_size": self.entry_size,
-                    "rows": self.rows,
-                    "cols": self.cols,
+                    "shape": self.shape,
                 },
                 output_file,
             )
@@ -113,6 +105,7 @@ class Dataset:
             binarization_name=binarization_name,
             num_classes=data["num_classes"],
             entry_size=data["entry_size"],
+            shape=data["shape"],
         )
 
     @staticmethod
