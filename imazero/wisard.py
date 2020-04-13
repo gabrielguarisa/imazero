@@ -1,7 +1,8 @@
 from ctypes import *
 import numpy as np
 from imazero._lib import flib, WrapperBase
-
+import wisardpkg as wp
+from imazero.utils import random_mapping
 
 class WiSARD(WrapperBase):
     def __init__(self, mapping):
@@ -69,29 +70,56 @@ class RandomWiSARD(WiSARD):
     def __init__(
         self, tuple_size, entry_size, address_replication=0, complete_addressing=True
     ):
-        mapping = self._random_mapping(tuple_size, entry_size, complete_addressing)
+        mapping = random_mapping(tuple_size, entry_size, complete_addressing)
         for _ in range(address_replication):
             mapping = np.concatenate(
                 (
                     mapping,
-                    self._random_mapping(tuple_size, entry_size, complete_addressing),
+                    random_mapping(tuple_size, entry_size, complete_addressing),
                 )
             )
         super().__init__(mapping)
 
-    def _random_mapping(self, tuple_size, entry_size, complete_addressing=True):
-        indexes = np.arange(entry_size)
-        num_rams = entry_size // tuple_size
-        remainder = tuple_size - (entry_size % tuple_size)
+class PolimappingWiSARD:
+    def __init__(self, mapping):
+        _mapping = {}
+        
+        for i in range(len(mapping)):
+            _mapping[str(i)] = mapping[i]
 
-        if remainder > 0:
-            num_rams += 1
-            if complete_addressing:
-                indexes = np.concatenate(
-                    (indexes, np.random.randint(entry_size, size=remainder))
+        self.ptr = wp.Wisard(len(mapping[0][0]), mapping=_mapping)
+
+    def fit(self, X, y):
+        self.ptr.train(wp.DataSet(X, np.array(y, dtype=str)))
+        return self
+
+    def predict(self, X):
+        return np.array(self.ptr.classify(wp.DataSet(X)), dtype=int)
+
+    def score(self, X, y):
+        y_pred = self.predict(X)
+        total = 0
+        for i in range(len(y)):
+            total += 1 if y[i] == y_pred[i] else 0
+
+        return total / len(y)
+
+
+class RandomPolimappingWiSARD(PolimappingWiSARD):
+    def __init__(
+        self, tuple_size, ndim, entry_size, address_replication=0, complete_addressing=True
+    ):
+        all_mappings = {}
+        for i in range(ndim):
+            mapping = random_mapping(tuple_size, entry_size, complete_addressing)
+            for _ in range(address_replication):
+                mapping = np.concatenate(
+                    (
+                        mapping,
+                        random_mapping(tuple_size, entry_size, complete_addressing),
+                    )
                 )
-            else:
-                indexes = np.concatenate((indexes, np.full(remainder, -1)))
+            all_mappings[i] = mapping
 
-        np.random.shuffle(indexes)
-        return np.reshape(indexes, (num_rams, tuple_size))
+        super().__init__(all_mappings)
+

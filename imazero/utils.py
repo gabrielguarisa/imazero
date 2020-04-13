@@ -1,6 +1,7 @@
 import pickle
 from os import makedirs, path
 import random
+import numpy as np
 
 
 def mkdir(folder):
@@ -57,10 +58,28 @@ def argsort(arr, reverse=True, shuffled=True):
         values = value_addr_map[key]
         if shuffled:
             random.shuffle(values)
-            
+
         output = [*output, *values]
 
     if reverse:
         return output[::-1]
-    
+
     return output
+
+
+def random_mapping(tuple_size, entry_size, complete_addressing=True):
+    indexes = np.arange(entry_size)
+    num_rams = entry_size // tuple_size
+    remainder = tuple_size - (entry_size % tuple_size)
+
+    if remainder > 0:
+        num_rams += 1
+        if complete_addressing:
+            indexes = np.concatenate(
+                (indexes, np.random.randint(entry_size, size=remainder))
+            )
+        else:
+            indexes = np.concatenate((indexes, np.full(remainder, -1)))
+
+    np.random.shuffle(indexes)
+    return np.reshape(indexes, (num_rams, tuple_size))

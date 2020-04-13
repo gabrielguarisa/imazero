@@ -1,13 +1,9 @@
 
 #!/usr/bin/env python
 from setuptools import setup, Extension, find_packages
-from setuptools.command.build_ext import build_ext
-import sys
-import setuptools
-from codecs import open  # To use a consistent encoding
-from os import path
+# from os import path
 
-here = path.abspath(path.dirname(__file__))
+# here = path.abspath(path.dirname(__file__))
 
 __package_name__ = 'imazero'
 __src__ = 'wrapper/imazero.cpp'
@@ -30,6 +26,7 @@ setup(
     version='0.0.2',
     ext_modules=ext_modules,
     zip_safe=False,
+    install_requires=['numpy', 'pybind11', 'wisardpkg==2.0.0a6'],
     keywords = ['wisard', 'weithgless', 'neural', 'net'],
     classifiers=[
         "License :: OSI Approved :: MIT License"
