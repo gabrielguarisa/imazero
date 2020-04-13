@@ -7,7 +7,14 @@ from .preprocessing import get_preprocessing, LabelEncoder
 
 class Dataset:
     def __init__(
-        self, train, test, dataset_name, binarization_name, num_classes=0, entry_size=0
+        self,
+        train,
+        test,
+        dataset_name,
+        binarization_name,
+        num_classes=0,
+        entry_size=0,
+        shape=None,
     ):
         self.X_train = []
         self.X_test = []
@@ -43,6 +50,12 @@ class Dataset:
         else:
             self.entry_size = entry_size
 
+        if shape == None:
+            self.rows = 0
+            self.cols = 0
+        else:
+            self.rows, self.cols = shape
+
     def get_data(self):
         return self.X_train, self.X_test, self.y_train, self.y_test
 
@@ -51,6 +64,9 @@ class Dataset:
 
     def __str__(self):
         return "{}_{}".format(self.dataset_name, self.binarization_name)
+
+    def get_shape(self):
+        return (self.rows, self.cols)
 
     def save(self, folder):
         if folder[-1] != "/":
@@ -72,6 +88,8 @@ class Dataset:
                     "test_filename": "{}.wpkds".format(test_filename),
                     "num_classes": self.num_classes,
                     "entry_size": self.entry_size,
+                    "rows": self.rows,
+                    "cols": self.cols,
                 },
                 output_file,
             )
@@ -108,6 +126,9 @@ class Dataset:
         num_classes=0,
         entry_size=0,
     ):
+        shape = None
+        if np.array(train_images[0]).ndim == 2:
+            shape = np.shape(train_images[0])
         method = get_preprocessing(binarization_name)
 
         binary_train_images = method.transform(train_images)
@@ -133,4 +154,5 @@ class Dataset:
             binarization_name=binarization_name,
             num_classes=num_classes,
             entry_size=entry_size,
+            shape=shape,
         )
