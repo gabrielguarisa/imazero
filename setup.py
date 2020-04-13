@@ -1,6 +1,6 @@
 
 #!/usr/bin/env python
-from setuptools import setup, Extension
+from setuptools import setup, Extension, find_packages
 from setuptools.command.build_ext import build_ext
 import sys
 import setuptools
@@ -24,7 +24,7 @@ ext_modules = [
 setup(
     name=__package_name__,
     ext_package=__package_name__,
-    packages=[__package_name__],
+    packages=[__package_name__, *find_packages()],
     author='Gabriel Guarisa',
     description='A library of wisard with some models based on wisard',
     version='0.0.2',
