@@ -36,4 +36,39 @@ std::vector<uint32_t> azharStates(const std::vector<std::vector<uint32_t>> &coun
   return stateCounter;
 }
 
+uint32_t tupleGuarisaStates(const std::vector<uint32_t> &counters,
+                            uint32_t trueLabel) { // tuple response state to a single pattern
+  uint32_t maxValue = 0;
+  bool tie = true;
+
+  for (size_t i = 0; i < counters.size(); i++) {
+    if (counters[i] > maxValue) {
+      maxValue = counters[i];
+      tie = false;
+    } else if (counters[i] == maxValue) {
+      tie = true;
+    }
+  }
+
+  if (maxValue == 0 || tie) {
+    if (counters[trueLabel] == maxValue) {
+      return 2; // neutral good
+    }
+    return 1; // neutral bad
+  } else if (counters[trueLabel] == maxValue) {
+    return 3; // good
+  }
+  return 0; // bad
+}
+
+std::vector<uint32_t> guarisaStates(const std::vector<std::vector<uint32_t>> &counters,
+                                    uint32_t trueLabel) { // all tuples states to a single pattern
+  std::vector<uint32_t> stateCounter(counters.size());
+
+  for (size_t i = 0; i < counters.size(); i++) {
+    stateCounter[i] = tupleGuarisaStates(counters[i], trueLabel);
+  }
+  return stateCounter;
+}
+
 #endif // __STOCHASTIC

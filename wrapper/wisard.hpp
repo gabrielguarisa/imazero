@@ -32,9 +32,17 @@ void wisard_classify(void *self, void *const X, void *const output, uint lenght)
   std::copy(votes.begin(), votes.end(), (uint32_t *)output);
 }
 
-void wisard_azhar_measures(void *self, void *const X, void *const y, void *const output, uint lenght) {
+void wisard_azhar_measures(void *self, void *const X, void *const y, void *const output,
+                           uint lenght) {
   std::vector<double> measures =
       math::flatten(WISARD_SELF->azharMeasures((uint8_t *)X, (uint8_t *)y, lenght));
+  std::copy(measures.begin(), measures.end(), (double *)output);
+}
+
+void wisard_guarisa_measures(void *self, void *const X, void *const y, void *const output,
+                             uint lenght) {
+  std::vector<double> measures =
+      math::flatten(WISARD_SELF->guarisaMeasures((uint8_t *)X, (uint8_t *)y, lenght));
   std::copy(measures.begin(), measures.end(), (double *)output);
 }
 }

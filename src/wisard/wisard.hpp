@@ -77,6 +77,23 @@ public:
 
     return output;
   }
+
+  std::vector<std::vector<double>> guarisaMeasures(const uint8_t *X, const uint8_t *y, uint lenght) {
+    std::vector<std::vector<std::vector<uint32_t>>> votes = getVotes(X, lenght);
+    std::vector<std::vector<double>> output(__memories.size(), std::vector<double>(4, 0.0));
+    double sumValue = 1.0 / (double)lenght;
+
+    std::vector<uint32_t> states;
+    for (size_t i = 0; i < votes.size(); i++) {
+      states = guarisaStates(votes[i], y[i]);
+
+      for (size_t j = 0; j < states.size(); j++) {
+        output[j][states[j]] += sumValue;
+      }
+    }
+
+    return output;
+  }
 };
 
 #endif // __WISARD

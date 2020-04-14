@@ -38,6 +38,17 @@ class WiSARD(WrapperBase):
         ]
         self.wisard_azhar_measures.restype = None
 
+
+        self.wisard_guarisa_measures = flib.wisard_guarisa_measures
+        self.wisard_guarisa_measures.argtypes = [
+            c_void_p,
+            c_void_p,
+            c_void_p,
+            c_void_p,
+            c_int,
+        ]
+        self.wisard_guarisa_measures.restype = None
+
     def fit(self, X, y):
         X = self.list_to_ndarray(X, dtype=np.uint8)
         y = self.list_to_ndarray(y, dtype=np.uint8)
@@ -85,6 +96,22 @@ class WiSARD(WrapperBase):
             self.ptr, X.ctypes.data, y.ctypes.data, output.ctypes.data, len(X)
         )
         return np.reshape(output, (self.__len_memories, 3))
+
+    def guarisa_measures(self, X, y):
+        X = self.list_to_ndarray(X, dtype=np.uint8)
+        y = self.list_to_ndarray(y, dtype=np.uint8)
+
+        if X.ndim != 2:
+            raise Exception("X needs to be a 2D array!")
+
+        if self.ptr == None:
+            raise Exception("Run fit first!")
+
+        output = np.zeros(self.__len_memories * 4, dtype=np.double)
+        self.wisard_guarisa_measures(
+            self.ptr, X.ctypes.data, y.ctypes.data, output.ctypes.data, len(X)
+        )
+        return np.reshape(output, (self.__len_memories, 4))
 
     def score(self, X, y):
         y_pred = self.predict(X)
