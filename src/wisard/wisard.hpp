@@ -4,6 +4,7 @@
 #include "../common/utils.hpp"
 #include "bleaching.hpp"
 #include "memory.hpp"
+#include "stochastic.hpp"
 #include <cstdint>
 #include <vector>
 
@@ -51,12 +52,29 @@ public:
     std::vector<std::vector<std::vector<uint32_t>>> votes = getVotes(X, lenght);
 
     for (size_t i = 0; i < votes.size(); i++) {
-      std::vector<double> prob = __bleaching.run(votes[i]); 
+      std::vector<double> prob = __bleaching.run(votes[i]);
       output[i] = math::argmax(prob);
 
       // std::vector<uint32_t> sum_values = math::sum2D(votes[i], 0);
       // output[i] = math::argmax(sum_values);
     }
+    return output;
+  }
+
+  std::vector<std::vector<double>> azharMeasures(const uint8_t *X, const uint8_t *y, uint lenght) {
+    std::vector<std::vector<std::vector<uint32_t>>> votes = getVotes(X, lenght);
+    std::vector<std::vector<double>> output(__memories.size(), std::vector<double>(3, 0.0));
+    double sumValue = 1.0 / (double)lenght;
+
+    std::vector<uint32_t> states;
+    for (size_t i = 0; i < votes.size(); i++) {
+      states = azharStates(votes[i], y[i]);
+
+      for (size_t j = 0; j < states.size(); j++) {
+        output[j][states[j]] += sumValue;
+      }
+    }
+
     return output;
   }
 };

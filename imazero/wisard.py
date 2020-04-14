@@ -4,6 +4,7 @@ from imazero._lib import flib, WrapperBase
 import wisardpkg as wp
 from imazero.utils import random_mapping
 
+
 class WiSARD(WrapperBase):
     def __init__(self, mapping):
         destroy = flib.wisard_destroy
@@ -13,6 +14,8 @@ class WiSARD(WrapperBase):
         super().__init__(destroy)
 
         self.mapping = self.list_to_ndarray(mapping, dtype=np.uint32)
+
+        self.__len_memories = len(self.mapping)
 
         if self.mapping.ndim != 2:
             raise Exception("Mapping needs to be a 2D array!")
@@ -24,6 +27,16 @@ class WiSARD(WrapperBase):
         self.wisard_classify = flib.wisard_classify
         self.wisard_classify.argtypes = [c_void_p, c_void_p, c_void_p, c_int]
         self.wisard_classify.restype = None
+
+        self.wisard_azhar_measures = flib.wisard_azhar_measures
+        self.wisard_azhar_measures.argtypes = [
+            c_void_p,
+            c_void_p,
+            c_void_p,
+            c_void_p,
+            c_int,
+        ]
+        self.wisard_azhar_measures.restype = None
 
     def fit(self, X, y):
         X = self.list_to_ndarray(X, dtype=np.uint8)
@@ -57,6 +70,22 @@ class WiSARD(WrapperBase):
         self.wisard_classify(self.ptr, X.ctypes.data, output.ctypes.data, len(X))
         return output
 
+    def azhar_measures(self, X, y):
+        X = self.list_to_ndarray(X, dtype=np.uint8)
+        y = self.list_to_ndarray(y, dtype=np.uint8)
+
+        if X.ndim != 2:
+            raise Exception("X needs to be a 2D array!")
+
+        if self.ptr == None:
+            raise Exception("Run fit first!")
+
+        output = np.zeros(self.__len_memories * 3, dtype=np.double)
+        self.wisard_azhar_measures(
+            self.ptr, X.ctypes.data, y.ctypes.data, output.ctypes.data, len(X)
+        )
+        return np.reshape(output, (self.__len_memories, 3))
+
     def score(self, X, y):
         y_pred = self.predict(X)
         total = 0
@@ -73,17 +102,15 @@ class RandomWiSARD(WiSARD):
         mapping = random_mapping(tuple_size, entry_size, complete_addressing)
         for _ in range(address_replication):
             mapping = np.concatenate(
-                (
-                    mapping,
-                    random_mapping(tuple_size, entry_size, complete_addressing),
-                )
+                (mapping, random_mapping(tuple_size, entry_size, complete_addressing))
             )
         super().__init__(mapping)
+
 
 class PolimappingWiSARD:
     def __init__(self, mapping):
         _mapping = {}
-        
+
         for i in range(len(mapping)):
             _mapping[str(i)] = mapping[i]
 
@@ -107,7 +134,12 @@ class PolimappingWiSARD:
 
 class RandomPolimappingWiSARD(PolimappingWiSARD):
     def __init__(
-        self, tuple_size, ndim, entry_size, address_replication=0, complete_addressing=True
+        self,
+        tuple_size,
+        ndim,
+        entry_size,
+        address_replication=0,
+        complete_addressing=True,
     ):
         all_mappings = {}
         for i in range(ndim):
@@ -122,4 +154,3 @@ class RandomPolimappingWiSARD(PolimappingWiSARD):
             all_mappings[i] = mapping
 
         super().__init__(all_mappings)
-

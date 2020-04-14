@@ -8,6 +8,13 @@
 #include <vector>
 
 namespace math {
+template <typename T> std::vector<T> flatten(const std::vector<std::vector<T>> &v) {
+  std::vector<T> out;
+  for (const auto &r : v)
+    out.insert(out.end(), r.begin(), r.end());
+  return out;
+}
+
 uint64_t ipow(int base, int exp) {
   uint64_t result = 1;
   for (;;) {
