@@ -6,7 +6,7 @@ from sklearn.model_selection import train_test_split
 from random import randint, sample
 
 
-class GuarisaStochasticSearch(object):
+class GuarisaStochasticSearchMapping(object):
     def __init__(
         self,
         tuple_size,
@@ -53,7 +53,7 @@ class GuarisaStochasticSearch(object):
         return o_values
 
     def calculate_threshold(self, o_values):
-        return np.max(o_values) * (1 - exp(-(self.learning_rate * self.final_number_of_tuples) / self._t))
+        return np.max(o_values) * (1 - exp(-self.learning_rate / self._t))
 
     def generate_random_tuples(self, entry_size, num):
         return np.random.randint(int(entry_size), size=(int(num), int(self.tuple_size)))
@@ -112,4 +112,4 @@ class GuarisaStochasticSearch(object):
                 break
 
         print("")
-        return mature_tuples
+        return mature_tuples, self._t

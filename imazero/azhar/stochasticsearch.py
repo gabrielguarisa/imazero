@@ -6,7 +6,7 @@ from sklearn.model_selection import train_test_split
 from random import randint, sample
 
 
-class StochasticSearch(object):
+class AzharStochasticSearchMapping(object):
     def __init__(
         self,
         tuple_size,
@@ -118,4 +118,4 @@ class StochasticSearch(object):
                 class_tuples = []
                 self._t = 1
         print("")
-        return mature_tuples
+        return mature_tuples, gen
