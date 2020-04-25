@@ -12,9 +12,8 @@ class AzharParticleSwarmMapping(AzharStochasticSearchMapping):
     def __init__(
         self,
         tuple_size,
-        num_particles,
-        inertia_weight,
         final_number_of_tuples,
+        inertia_weight,
         recognized_weight,
         misclassified_weight,
         rejected_weight,
@@ -26,7 +25,6 @@ class AzharParticleSwarmMapping(AzharStochasticSearchMapping):
     ):
         self.local_acceleration = local_acceleration
         self.global_acceleration = global_acceleration
-        self.num_particles = num_particles
         self.inertia_weight = inertia_weight
         self.criticality_limit = criticality_limit
 
@@ -40,7 +38,7 @@ class AzharParticleSwarmMapping(AzharStochasticSearchMapping):
             validation_size,
         )
 
-    def generate_random_particles(self, entry_size):
+    def generate_random_particles(self, entry_size, num_particles):
         return [
             Particle(
                 initial_position=np.random.randint(
@@ -52,7 +50,7 @@ class AzharParticleSwarmMapping(AzharStochasticSearchMapping):
                 local_acceleration=self.local_acceleration,
                 global_acceleration=self.global_acceleration,
             )
-            for _ in range(self.num_particles)
+            for _ in range(num_particles)
         ]
 
     def particles_to_mapping(self, particles):
@@ -96,23 +94,26 @@ class AzharParticleSwarmMapping(AzharStochasticSearchMapping):
 
         gen = 1
 
-        cl_min = round((self.num_particles * self.tuple_size) / ds.entry_size)
+        cl_min = round(
+            (self.final_number_of_tuples * 2 * self.tuple_size) / ds.entry_size
+        )
         rows, cols = ds.shape
         if self.criticality_limit == None:
             self.criticality_limit = cl_min
         elif self.criticality_limit < cl_min:
             raise Exception("Invalid criticality limit!")
 
-       
         while i < num_labels:
-            particles = self.generate_random_particles(ds.entry_size)
+            particles = self.generate_random_particles(
+                ds.entry_size, self.final_number_of_tuples * 2
+            )
             best_position, _, particles = self.get_best_tuples(
                 ds.X_train, ds.y_train, labels[i], particles
             )
 
             criticality = np.zeros(ds.entry_size, dtype=int)
 
-            for j in range(self.num_particles):
+            for j in range(self.final_number_of_tuples):
                 for d in range(self.tuple_size):
 
                     particles[j].update_velocity(self.inertia_weight, best_position, d)
@@ -128,13 +129,13 @@ class AzharParticleSwarmMapping(AzharStochasticSearchMapping):
                         criticality[particles[j].get_position(d)] -= 1
                         particles[j].disperse(d, rows, cols)
                         criticality[particles[j].get_position(d)] += 1
-                        print(
-                            j,
-                            d,
-                            particles[j].get_position(d),
-                            criticality[particles[j].get_position(d)],
-                            end="\r",
-                        )
+                        # print(
+                        #     j,
+                        #     d,
+                        #     particles[j].get_position(d),
+                        #     criticality[particles[j].get_position(d)],
+                        #     end="\r",
+                        # )
 
             print(
                 "gen: {} | t: {} | i: {} | Tf: {}".format(
@@ -147,10 +148,10 @@ class AzharParticleSwarmMapping(AzharStochasticSearchMapping):
             )
             self._t += 1
             gen += 1
-            if len(class_tuples) >= tuples_per_class:
+            if len(class_tuples) >= tuples_per_class or self._t > 1000:
                 mature_tuples = [*mature_tuples, *class_tuples[:tuples_per_class]]
                 i += 1
                 class_tuples = []
                 self._t = 1
         print("")
-        return mature_tuples
+        return mature_tuples, gen

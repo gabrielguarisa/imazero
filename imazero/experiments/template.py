@@ -50,13 +50,13 @@ class TemplateExperiment(ABC):
         tuple_sizes = valid_tuple_sizes(ds.entry_size)
         print("Tuple sizes: ", tuple_sizes)
         for tuple_size in tuple_sizes:
-            print("-- {}".format(tuple_size), end="\r")
             nec_exec = self.num_exec - len(df.loc[df["n"] == tuple_size])
-            for _ in range(nec_exec):
+            for i in range(nec_exec):
+                print("-- {} ({}/{})".format(tuple_size, i+1, nec_exec), end="\r")
                 df = df.append(
                     self._calculate_score(ds, tuple_size), ignore_index=True,
                 )
-            print("-- {}\tOK!".format(tuple_size))
+            print("-- {}\tOK!    ".format(tuple_size))
 
             if self.save:
                 df.to_csv(filename, index=False)
