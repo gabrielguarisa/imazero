@@ -16,6 +16,8 @@ class GuarisaStochasticSearchMapping(object):
         rejected_weight,
         misclassified_weight,
         learning_rate,
+        max_ittr=1000,
+        lag=30,
         validation_size=0.3,
     ):
         self.tuple_size = tuple_size
@@ -26,6 +28,8 @@ class GuarisaStochasticSearchMapping(object):
         self.misclassified_weight = misclassified_weight
         self.learning_rate = learning_rate
         self.validation_size = validation_size
+        self.max_ittr = max_ittr
+        self.lag = lag
 
     def o_func(self, recognized, recognized_rejected, rejected, misclassified):
         return (
@@ -58,7 +62,7 @@ class GuarisaStochasticSearchMapping(object):
     def generate_random_tuples(self, entry_size, num):
         return np.random.randint(int(entry_size), size=(int(num), int(self.tuple_size)))
 
-    def get_best_tuples(self, X, y, y_true, mapping):
+    def get_best_tuples(self, X, y, mapping):
         X_train, X_val, y_train, y_val = train_test_split(
             X, y, test_size=self.validation_size, stratify=y
         )
@@ -75,27 +79,27 @@ class GuarisaStochasticSearchMapping(object):
         return valid_tuples, o_values
 
     def run(self, X, y):
-        i = 0
         self._t = 1
-        labels = list(set(y))
-        self.num_labels = len(labels)
         entry_size = len(X[0])
         mature_tuples = []
 
-        while i < self.num_labels:
+        past_mean = 0.0
+        diff_counter = 0
+
+        while self._t < self.max_ittr and diff_counter < self.lag:
             generation_tuples = [
                 *self.generate_random_tuples(entry_size, self.final_number_of_tuples),
                 *mature_tuples,
             ]
 
             mature_tuples, o_values = self.get_best_tuples(
-                X, y, labels[i], generation_tuples
+                X, y, generation_tuples
             )
 
             print(
-                "t: {} | i: {} | Tf: {} | maxO: {} | threshold: {}".format(
+                "t: {} | dc: {} | Tf: {} | maxO: {} | threshold: {}".format(
                     self._t,
-                    i,
+                    diff_counter,
                     len(mature_tuples),
                     np.max(o_values),
                     self.calculate_threshold(o_values),
@@ -110,6 +114,14 @@ class GuarisaStochasticSearchMapping(object):
             elif len(mature_tuples) > self.final_number_of_tuples:
                 mature_tuples = mature_tuples[: self.final_number_of_tuples]
                 break
+            else:
+                curr_mean = np.mean(o_values)
+                if curr_mean == past_mean:
+                    diff_counter += 1
+                else:
+                    diff_counter = 0
+                    past_mean = curr_mean
+                
 
         print("")
         return mature_tuples, self._t
