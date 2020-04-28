@@ -31,7 +31,7 @@ def get_default_experiments():
         AzharStochasticSearch,
         GuarisaStochasticSearch,
     )
-    from imazero.experiments.ga import GuarisaGA
+    from imazero.experiments.ga import GuarisaGA, GiordanoGA
 
     return [
         RandomMonomapping(),
@@ -50,4 +50,5 @@ def get_default_experiments():
             inertia_weight=0.2,
         ),
         GuarisaGA(10),
+        GiordanoGA(10)
     ]

@@ -31,7 +31,7 @@ class GuarisaGA(TemplateExperiment):
             ds.entry_size,
             population_size=self.population_size,
             num_exec=int(self.population_size / 2),
-            lag=self.lag,
+            lag=self.lag, recognized_weight=2, recognized_rejected_weight=1, rejected_weight=1, misclassified_weight=2
         )
         mappings, gen = ga.run(ds.X_train, ds.y_train)
 

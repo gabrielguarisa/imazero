@@ -1,6 +1,6 @@
 from math import sqrt, ceil
 import numpy as np
-from random import randint, choices
+from random import randint, choices, random
 from imazero.utils import get_bin, get_int, change_char, random_mapping, argsort
 from imazero.wisard import WiSARD
 from sklearn.model_selection import train_test_split
@@ -12,6 +12,11 @@ class GuarisaGeneticAlgorithm:
         tuple_size,
         entry_size,
         population_size,
+        recognized_weight,
+        recognized_rejected_weight,
+        rejected_weight,
+        misclassified_weight,
+        theta=0.8,
         num_exec=5,
         max_ittr=100,
         lag=5,
@@ -24,6 +29,11 @@ class GuarisaGeneticAlgorithm:
         self.max_ittr = max_ittr
         self.lag = lag
         self.validation_size = validation_size
+        self.recognized_weight = recognized_weight
+        self.recognized_rejected_weight = recognized_rejected_weight
+        self.rejected_weight = rejected_weight
+        self.misclassified_weight = misclassified_weight
+        self.theta = theta
 
     def _generate_random_population(self):
         return [
@@ -55,6 +65,32 @@ class GuarisaGeneticAlgorithm:
 
         return np.array(mapping, dtype=np.uint32)
 
+
+    def o_func(self, recognized, recognized_rejected, rejected, misclassified):
+        return (
+            recognized * self.recognized_weight
+            + recognized_rejected * self.recognized_rejected_weight
+            - misclassified * self.misclassified_weight
+            - rejected * self.rejected_weight
+        )
+
+    def get_o_values(self, measures):
+        # measures index order
+        # recognized = 2
+        # rejected = 1
+        # misclassified = 0
+        o_values = []
+        for i in range(len(measures)):
+            o_values.append(
+                self.o_func(
+                    recognized=measures[i][3],
+                    recognized_rejected=measures[i][2],
+                    rejected=measures[i][1],
+                    misclassified=measures[i][0],
+                )
+            )
+        return o_values
+
     def mutation(self, mapping):
         bin_mapping = self._mapping_to_bin(mapping)
 
@@ -85,7 +121,7 @@ class GuarisaGeneticAlgorithm:
         )
 
         return [
-            WiSARD(mapping).fit(X_train, y_train).score(X_val, y_val)
+            np.mean(WiSARD(mapping).fit(X_train, y_train).guarisa_measures(X_val, y_val))
             for mapping in mappings
         ]
 
@@ -113,6 +149,17 @@ class GuarisaGeneticAlgorithm:
                 offspring_population.append(child_a)
                 offspring_population.append(self.mutation(child_b))
                 offspring_population.append(child_b)
+
+                choice = random()
+
+                parent_a, parent_b = self.selection(population, fitness)
+                if choice < self.theta:
+                    child_a, child_b = self.crossover(parent_a, parent_b)
+                    offspring_population.append(child_a)
+                    offspring_population.append(child_b)
+                else:
+                    child = self.mutation(parent_a)
+                    offspring_population.append(child)
 
             offspring_fitness = self.fitness_func(X, y, offspring_population)
             temp_fitness = [*fitness, *offspring_fitness]
