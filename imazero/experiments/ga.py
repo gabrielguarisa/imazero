@@ -43,26 +43,27 @@ class GuarisaGA(TemplateExperiment):
                 tuple_size,
                 ds.entry_size,
                 population_size=self.population_size,
-                num_exec=nec_exec,
+                num_exec=int(self.population_size/2),
                 lag=self.lag,
             )
-            mappings, gen = ga.run(ds.X_train, ds.y_train)
-            for mapping in mappings:
-                score = (
-                    WiSARD(mapping)
-                    .fit(ds.X_train, ds.y_train)
-                    .score(ds.X_test, ds.y_test)
-                )
-                df = df.append(
-                    {
-                        "n": tuple_size,
-                        "accuracy": score,
-                        "population_size": self.population_size,
-                        "lag": self.lag,
-                        "generations": gen,
-                    },
-                    ignore_index=True,
-                )
+            for _ in range(nec_exec):
+                mappings, gen = ga.run(ds.X_train, ds.y_train)
+                for mapping in mappings:
+                    score = (
+                        WiSARD(mapping)
+                        .fit(ds.X_train, ds.y_train)
+                        .score(ds.X_test, ds.y_test)
+                    )
+                    df = df.append(
+                        {
+                            "n": tuple_size,
+                            "accuracy": score,
+                            "population_size": self.population_size,
+                            "lag": self.lag,
+                            "generations": gen,
+                        },
+                        ignore_index=True,
+                    )
             print("-- {}\tOK!    ".format(tuple_size))
 
             if self.save:
