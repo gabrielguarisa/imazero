@@ -83,3 +83,39 @@ def random_mapping(tuple_size, entry_size, complete_addressing=True):
 
     np.random.shuffle(indexes)
     return np.reshape(indexes, (num_rams, tuple_size))
+
+
+def get_bin(x, n=0):
+    """
+  Get the binary representation of x.
+
+  Parameters
+  ----------
+  x : int
+  n : int
+      Minimum number of digits. If x needs less digits in binary, the rest
+      is filled with zeros.
+
+  Returns
+  -------
+  str
+  """
+    return format(x, "b").zfill(n)
+
+
+def get_int(x):
+    """
+  Get the int value of x.
+
+  Parameters
+  ----------
+  x : str
+  Returns
+  -------
+  int
+  """
+    return int(x, 2)
+
+
+def change_char(str, i, char):
+    return str[:i] + char + str[i + 1 :]
