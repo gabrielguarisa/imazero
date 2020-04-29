@@ -33,9 +33,12 @@ class Dataset:
             self.y_test.append(self.test.getLabel(i))
 
         self.X_train = np.array(self.X_train, dtype=np.uint8)
-        self.y_train = np.array(self.y_train, dtype=np.uint8)
         self.X_test = np.array(self.X_test, dtype=np.uint8)
-        self.y_test = np.array(self.y_test, dtype=np.uint8)
+        
+        le = LabelEncoder()
+        le.fit(self.y_train)
+        self.y_train = np.array(le.transform(self.y_train), dtype=np.uint8)
+        self.y_test = np.array(le.transform(self.y_test), dtype=np.uint8)
 
         self.dataset_name = dataset_name
         self.binarization_name = binarization_name
