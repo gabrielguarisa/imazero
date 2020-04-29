@@ -112,7 +112,7 @@ class AzharStochasticSearchMapping(object):
 
             self._t += 1
             gen += 1
-            if len(class_tuples) >= tuples_per_class:
+            if len(class_tuples) >= tuples_per_class  or self._t > 1000:
                 mature_tuples = [*mature_tuples, *class_tuples[:tuples_per_class]]
                 i += 1
                 class_tuples = []
