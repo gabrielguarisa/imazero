@@ -16,7 +16,7 @@ def plot_metric_images(
     prefix = "mental"
     if entropy:
         prefix = "entropy"
-        mi = get_entropy_images(ds.X_train, ds.y_train)    
+        mi = get_entropy_images(ds.X_train, ds.y_train)
     else:
         mi = get_mental_images(ds.X_train, ds.y_train)
 
@@ -60,12 +60,13 @@ def concat_experiments_scores(
 
 
 def barplot_scores(
-    output_file, dataset_name, binarization_name, experiments, results_folder="results"
+    desc, dataset_name, binarization_name, experiments, results_folder="results"
 ):
+    output_folder = mkdir("images/{}/".format(dataset_name))
     df = concat_experiments_scores(
         dataset_name, binarization_name, experiments, results_folder
     )
     plot = sns.barplot(x="n", y="accuracy", hue="experiment", data=df)
     fig = plot.get_figure()
-    fig.savefig("{}.png".format(output_file))
+    fig.savefig("{}{}_{}.png".format(output_folder, binarization_name, desc))
     fig.clf()

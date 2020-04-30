@@ -85,11 +85,35 @@ if __name__ == "__main__":
         "datasets", metavar="N", type=str, nargs="+", help="dataset names"
     )
 
+    parser.add_argument(
+        "--metric", action="store_true", dest="metric", help="Plot metric images.",
+    )
+
+    parser.add_argument(
+        "--plot", action="store_true", dest="plot", help="Plot accuracy images.",
+    )
+
     args = parser.parse_args()
 
-    for dataset_name in args.datasets:
-        mp_runner(
-            experiments=configurations[dataset_name]["experiments"],
-            datasets=[dataset_name],
-            binarizations=configurations[dataset_name]["binarizations"],
-        )
+    if args.metric or args.plot:
+        if args.metric:
+            for dataset_name in args.datasets:
+                for binarization_name in configurations[dataset_name]["binarizations"]:
+                    plots.plot_metric_images(dataset_name, binarization_name)
+                    plots.plot_metric_images(
+                        dataset_name, binarization_name, entropy=True
+                    )
+        else:
+            for dataset_name in args.datasets:
+                for binarization_name in configurations[dataset_name]["binarizations"]:
+                    for desc, experiment_names in experiments_desc.items():
+                        plots.barplot_scores(
+                            desc, dataset_name, binarization_name, experiment_names,
+                        )
+    else:
+        for dataset_name in args.datasets:
+            mp_runner(
+                experiments=configurations[dataset_name]["experiments"],
+                datasets=[dataset_name],
+                binarizations=configurations[dataset_name]["binarizations"],
+            )
