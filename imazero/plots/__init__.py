@@ -10,7 +10,7 @@ import numpy as np
 def plot_metric_images(
     dataset_name, binarization_name, entropy=False, output_folder="images"
 ):
-    output_folder = mkdir("{}/{}".format(output_folder, dataset_name))
+    output_folder = mkdir("{}/{}/metric/".format(output_folder, dataset_name))
 
     ds = get_dataset(dataset_name, binarization_name)
     prefix = "mental"

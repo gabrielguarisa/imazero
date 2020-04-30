@@ -146,6 +146,8 @@ def get_entropy_images(X, y):
     entropy_images = {}
 
     for key, value in mi.items():
-        entropy_images[key] = binary_entropy_func(value)
+        entropy_images[key] = np.array(
+            [binary_entropy_func(value[i]) for i in range(len(value))]
+        )
 
     return entropy_images
