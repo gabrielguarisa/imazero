@@ -72,7 +72,7 @@ class GiordanoGA(TemplateExperiment):
             "theta_u": float,
         }
         super().__init__(
-            "GuarisaGeneticAlgorithm", header_map, save, folder, num_exec,
+            "GiordanoGeneticAlgorithm", header_map, save, folder, num_exec,
         )
 
     def _prep(self, ds):
