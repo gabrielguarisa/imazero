@@ -5,6 +5,7 @@ from imazero import (
     get_stochastic_experiments,
     get_wcsp_line_experiments,
     get_wcsp_sparse_experiments,
+    plots,
 )
 
 configurations = {
@@ -56,6 +57,26 @@ configurations = {
             *get_wcsp_sparse_experiments(),
         ],
     },
+}
+
+experiments_desc = {
+    "wcsp": [
+        "ConstraintsMonomappingMerge",
+        "ConstraintsMonomappingExclusive",
+        "ConstraintsMonomappingIntersection",
+        "ConstraintsPolimapping",
+        "RandomMonomapping",
+        "RandomPolimapping",
+    ],
+    "stochastic": [
+        "AzharParticleSwarmOptimization",
+        "AzharStochasticSearch",
+        "GiordanoGeneticAlgorithm",
+        "GuarisaStochasticSearch",
+        "GuarisaGeneticAlgorithm",
+        "RandomMonomapping",
+        "RandomPolimapping",
+    ],
 }
 
 if __name__ == "__main__":
