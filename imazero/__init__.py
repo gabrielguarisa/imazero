@@ -93,3 +93,20 @@ def get_wcsp_sparse_experiments():
         ConstraintsMonomapping(OnesFinder(), "intersection"),
         ConstraintsMonomapping(OnesFinder(), "exclusive"),
     ]
+
+
+def get_group_by_experiments():
+    from imazero.experiments.groupby import GroupByMonomapping, GroupByPolimapping
+
+    return [
+        GroupByMonomapping("entropy", "mean"),
+        GroupByMonomapping("entropy", "std"),
+        GroupByMonomapping("entropy", "skew"),
+        GroupByMonomapping("entropy", "kurtosis"),
+        GroupByMonomapping("mental", "mean"),
+        GroupByMonomapping("mental", "std"),
+        GroupByMonomapping("mental", "skew"),
+        GroupByMonomapping("mental", "kurtosis"),
+        GroupByPolimapping("entropy"),
+        GroupByPolimapping("mental"),
+    ]

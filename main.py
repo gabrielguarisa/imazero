@@ -5,6 +5,7 @@ from imazero import (
     get_stochastic_experiments,
     get_wcsp_line_experiments,
     get_wcsp_sparse_experiments,
+    get_group_by_experiments,
     plots,
 )
 
@@ -12,6 +13,7 @@ configurations = {
     "mnist": {
         "binarizations": ["mt", "ot"],
         "experiments": [
+            *get_group_by_experiments(),
             *get_random_experiments(),
             *get_stochastic_experiments(),
             *get_wcsp_line_experiments(),
@@ -20,6 +22,7 @@ configurations = {
     "fashion": {
         "binarizations": ["mt", "ot"],
         "experiments": [
+            *get_group_by_experiments(),
             *get_random_experiments(),
             *get_stochastic_experiments(),
             *get_wcsp_line_experiments(),
@@ -28,6 +31,7 @@ configurations = {
     "cifar10": {
         "binarizations": ["mt", "ot"],
         "experiments": [
+            *get_group_by_experiments(),
             *get_random_experiments(),
             *get_stochastic_experiments(),
             *get_wcsp_line_experiments(),
@@ -36,6 +40,7 @@ configurations = {
     "ckp": {
         "binarizations": ["mt", "ot"],
         "experiments": [
+            *get_group_by_experiments(),
             *get_random_experiments(),
             *get_stochastic_experiments(),
             *get_wcsp_line_experiments(),
@@ -44,6 +49,7 @@ configurations = {
     "imdb": {
         "binarizations": ["mt"],
         "experiments": [
+            *get_group_by_experiments(),
             *get_random_experiments(),
             *get_stochastic_experiments(),
             *get_wcsp_sparse_experiments(),
@@ -52,6 +58,7 @@ configurations = {
     "movielens": {
         "binarizations": ["th"],
         "experiments": [
+            *get_group_by_experiments(),
             *get_random_experiments(),
             *get_stochastic_experiments(),
             *get_wcsp_sparse_experiments(),
