@@ -2,6 +2,7 @@ import pickle
 from os import makedirs, path
 import random
 import numpy as np
+from math import log2
 
 
 def mkdir(folder):
@@ -119,3 +120,32 @@ def get_int(x):
 
 def change_char(str, i, char):
     return str[:i] + char + str[i + 1 :]
+
+
+def binary_entropy_func(p):
+    if p == 0 or p == 1:
+        return 0.0
+    return -p * log2(p) - (1 - p) * log2(1 - p)
+
+
+def get_mental_images(X, y, normalized=True):
+    images = get_images_by_label(X, y)
+    mental_images = {}
+    for key, value in images.items():
+        mental_images[key] = np.sum(value, axis=0)
+
+    if normalized:
+        for key, _ in images.items():
+            mental_images[key] = mental_images[key] / np.max(mental_images[key])
+
+    return mental_images
+
+
+def get_entropy_images(X, y):
+    mi = get_mental_images(X, y)
+    entropy_images = {}
+
+    for key, value in mi.items():
+        entropy_images[key] = binary_entropy_func(value)
+
+    return entropy_images
