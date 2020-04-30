@@ -1,6 +1,7 @@
 import argparse
 from imazero import (
     mp_runner,
+    runner,
     get_random_experiments,
     get_stochastic_experiments,
     get_wcsp_line_experiments,
@@ -8,6 +9,7 @@ from imazero import (
     get_group_by_experiments,
     plots,
 )
+from multiprocessing import cpu_count
 
 configurations = {
     "mnist": {
@@ -112,6 +114,23 @@ if __name__ == "__main__":
         "--plot", action="store_true", dest="plot", help="Plot accuracy images.",
     )
 
+    parser.add_argument(
+        "--sequential",
+        action="store_true",
+        dest="sequential",
+        help="Run without paralelism.",
+    )
+
+    parser.add_argument(
+        "-n",
+        "--num-procs",
+        action="store",
+        dest="num_procs",
+        default=cpu_count(),
+        type=int,
+        help="Number of processes.",
+    )
+
     args = parser.parse_args()
 
     if args.metric or args.plot:
@@ -130,9 +149,18 @@ if __name__ == "__main__":
                             desc, dataset_name, binarization_name, experiment_names,
                         )
     else:
-        for dataset_name in args.datasets:
-            mp_runner(
-                experiments=configurations[dataset_name]["experiments"],
-                datasets=[dataset_name],
-                binarizations=configurations[dataset_name]["binarizations"],
-            )
+        if args.sequential:
+            for dataset_name in args.datasets:
+                runner(
+                    experiments=configurations[dataset_name]["experiments"],
+                    datasets=[dataset_name],
+                    binarizations=configurations[dataset_name]["binarizations"],
+                )
+        else:
+            for dataset_name in args.datasets:
+                mp_runner(
+                    experiments=configurations[dataset_name]["experiments"],
+                    datasets=[dataset_name],
+                    binarizations=configurations[dataset_name]["binarizations"],
+                    num_procs=args.num_procs,
+                )

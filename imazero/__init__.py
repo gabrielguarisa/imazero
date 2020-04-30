@@ -5,10 +5,17 @@ def experiment_runner(experiment, dataset_name, binarization_name):
     experiment.run(ds)
 
 
-def mp_runner(experiments, datasets, binarizations):
-    from multiprocessing import Pool, cpu_count
+def runner(experiments, datasets, binarizations):
+    for experiment in experiments:
+        for dataset_name in datasets:
+            for binarization_name in binarizations:
+                experiment_runner(experiment, dataset_name, binarization_name)
 
-    pool = Pool(cpu_count())
+
+def mp_runner(experiments, datasets, binarizations, num_procs):
+    from multiprocessing import Pool
+
+    pool = Pool(num_procs)
 
     for experiment in experiments:
         for dataset_name in datasets:
@@ -22,10 +29,10 @@ def mp_runner(experiments, datasets, binarizations):
     pool.join()
 
 
-def mp_runner_config(configurations):
-    from multiprocessing import Pool, cpu_count
+def mp_runner_config(configurations, num_procs):
+    from multiprocessing import Pool
 
-    pool = Pool(cpu_count())
+    pool = Pool(num_procs)
 
     for dataset_name, config in configurations.items():
         for experiment in config["experiments"]:

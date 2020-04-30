@@ -60,13 +60,13 @@ class GroupByMonomapping(TemplateExperiment):
 
         images = list(metric_images.values())
         if self._func == "mean":
-            self._metric_image = np.mean(images, axis=0)
+            self._metric_image = np.array(np.mean(images, axis=0), dtype="float16")
         elif self._func == "std":
-            self._metric_image = np.std(images, axis=0)
+            self._metric_image = np.array(np.std(images, axis=0), dtype="float16")
         elif self._func == "skew":
-            self._metric_image = skew(images, axis=0)
+            self._metric_image = np.array(skew(images, axis=0), dtype="float16")
         elif self._func == "kurtosis":
-            self._metric_image = kurtosis(images, axis=0)
+            self._metric_image = np.array(kurtosis(images, axis=0), dtype="float16")
         else:
             raise Exception("Invalid function!")
 
