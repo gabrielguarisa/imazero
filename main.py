@@ -84,6 +84,18 @@ experiments_desc = {
         "RandomMonomapping",
         "RandomPolimapping",
     ],
+    "groupby": [
+        "GroupByEntropyMeanMonomapping",
+        "GroupByEntropyStdMonomapping",
+        "GroupByEntropySkewMonomapping",
+        "GroupByEntropyKurtosisMonomapping",
+        "GroupByMentalMeanMonomapping",
+        "GroupByMentalStdMonomapping",
+        "GroupByMentalSkewMonomapping",
+        "GroupByMentalKurtosisMonomapping",
+        "GroupByEntropyPolimapping",
+        "GroupByMentalPolimapping",
+    ],
 }
 
 if __name__ == "__main__":
