@@ -65,32 +65,6 @@ class GuarisaGeneticAlgorithm:
 
         return np.array(mapping, dtype=np.uint32)
 
-
-    def o_func(self, recognized, recognized_rejected, rejected, misclassified):
-        return (
-            recognized * self.recognized_weight
-            + recognized_rejected * self.recognized_rejected_weight
-            - misclassified * self.misclassified_weight
-            - rejected * self.rejected_weight
-        )
-
-    def get_o_values(self, measures):
-        # measures index order
-        # recognized = 2
-        # rejected = 1
-        # misclassified = 0
-        o_values = []
-        for i in range(len(measures)):
-            o_values.append(
-                self.o_func(
-                    recognized=measures[i][3],
-                    recognized_rejected=measures[i][2],
-                    rejected=measures[i][1],
-                    misclassified=measures[i][0],
-                )
-            )
-        return o_values
-
     def mutation(self, mapping):
         bin_mapping = self._mapping_to_bin(mapping)
 
@@ -121,7 +95,7 @@ class GuarisaGeneticAlgorithm:
         )
 
         return [
-            np.mean(WiSARD(mapping).fit(X_train, y_train).guarisa_measures(X_val, y_val))
+            WiSARD(mapping).fit(X_train, y_train).score(X_val, y_val)
             for mapping in mappings
         ]
 
@@ -176,6 +150,15 @@ class GuarisaGeneticAlgorithm:
                 diff_counter = 0
                 past_mean = fitness_mean
 
-            print("t:", t, "|| fitness:", past_mean, "|| std:", np.std(fitness), "|| dc:", diff_counter)
+            print(
+                "t:",
+                t,
+                "|| fitness:",
+                past_mean,
+                "|| std:",
+                np.std(fitness),
+                "|| dc:",
+                diff_counter,
+            )
 
         return population, t

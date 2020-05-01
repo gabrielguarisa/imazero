@@ -49,7 +49,7 @@ configurations = {
         ],
     },
     "imdb": {
-        "binarizations": ["mt"],
+        "binarizations": ["th"],
         "experiments": [
             *get_group_by_experiments(),
             *get_random_experiments(),
