@@ -55,12 +55,23 @@ def get_stochastic_experiments():
     from imazero.experiments.ga import GuarisaGA, GiordanoGA
 
     return [
-        AzharStochasticSearch(0.6, 0.3, 0.1, 1.0),
-        GuarisaStochasticSearch(0.5, 0.1, 0.3, 0.1, 1.0),
+        AzharStochasticSearch(
+            recognized_weight=0.5,
+            misclassified_weight=-0.4,
+            rejected_weight=-0.1,
+            learning_rate=1.0,
+        ),
+        GuarisaStochasticSearch(
+            recognized_weight=0.9,
+            recognized_rejected_weight=0.1,
+            misclassified_weight=-0.4,
+            rejected_weight=-0.1,
+            learning_rate=1.0,
+        ),
         AzharParticleSwarmOptimization(
             recognized_weight=0.5,
-            misclassified_weight=0.4,
-            rejected_weight=0.1,
+            misclassified_weight=-0.4,
+            rejected_weight=-0.1,
             learning_rate=1.0,
             inertia_weight=0.2,
         ),

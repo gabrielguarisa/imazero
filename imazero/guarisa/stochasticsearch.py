@@ -17,7 +17,7 @@ class GuarisaStochasticSearchMapping(object):
         misclassified_weight,
         learning_rate,
         max_ittr=1000,
-        lag=30,
+        lag=10,
         validation_size=0.3,
     ):
         self.tuple_size = tuple_size
@@ -35,8 +35,8 @@ class GuarisaStochasticSearchMapping(object):
         return (
             recognized * self.recognized_weight
             + recognized_rejected * self.recognized_rejected_weight
-            - misclassified * self.misclassified_weight
-            - rejected * self.rejected_weight
+            + misclassified * self.misclassified_weight
+            + rejected * self.rejected_weight
         )
 
     def get_o_values(self, measures):

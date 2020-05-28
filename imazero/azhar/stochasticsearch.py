@@ -28,8 +28,8 @@ class AzharStochasticSearchMapping(object):
     def o_func(self, recognized, misclassified, rejected):
         return (
             recognized * self.recognized_weight
-            - misclassified * self.misclassified_weight
-            - rejected * self.rejected_weight
+            + misclassified * self.misclassified_weight
+            + rejected * self.rejected_weight
         )
 
     def get_o_values(self, measures):
@@ -112,7 +112,7 @@ class AzharStochasticSearchMapping(object):
 
             self._t += 1
             gen += 1
-            if len(class_tuples) >= tuples_per_class  or self._t > 1000:
+            if len(class_tuples) >= tuples_per_class or self._t > 1000:
                 mature_tuples = [*mature_tuples, *class_tuples[:tuples_per_class]]
                 i += 1
                 class_tuples = []

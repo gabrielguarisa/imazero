@@ -103,10 +103,11 @@ class AzharParticleSwarmMapping(AzharStochasticSearchMapping):
         elif self.criticality_limit < cl_min:
             raise Exception("Invalid criticality limit!")
 
+        particles = self.generate_random_particles(
+            ds.entry_size, self.final_number_of_tuples
+        )
+
         while i < num_labels:
-            particles = self.generate_random_particles(
-                ds.entry_size, self.final_number_of_tuples * 2
-            )
             best_position, _, particles = self.get_best_tuples(
                 ds.X_train, ds.y_train, labels[i], particles
             )
@@ -129,13 +130,6 @@ class AzharParticleSwarmMapping(AzharStochasticSearchMapping):
                         criticality[particles[j].get_position(d)] -= 1
                         particles[j].disperse(d, rows, cols)
                         criticality[particles[j].get_position(d)] += 1
-                        # print(
-                        #     j,
-                        #     d,
-                        #     particles[j].get_position(d),
-                        #     criticality[particles[j].get_position(d)],
-                        #     end="\r",
-                        # )
 
             print(
                 "gen: {} | t: {} | i: {} | Tf: {}".format(
