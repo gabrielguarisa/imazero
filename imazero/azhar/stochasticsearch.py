@@ -118,4 +118,8 @@ class AzharStochasticSearchMapping(object):
                 class_tuples = []
                 self._t = 1
         print("")
+
+        if len(mature_tuples) <= 1:
+            mature_tuples = self.generate_random_tuples(entry_size, 2)
+
         return mature_tuples, gen
