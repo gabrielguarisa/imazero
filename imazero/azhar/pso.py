@@ -122,14 +122,16 @@ class AzharParticleSwarmMapping(AzharStochasticSearchMapping):
                     particles[j].update_position(d)
 
                     criticality[particles[j].get_position(d)] += 1
-
+                    k = 0
                     while (
                         criticality[particles[j].get_position(d)]
                         > self.criticality_limit
+                        and k < 100
                     ):
                         criticality[particles[j].get_position(d)] -= 1
                         particles[j].disperse(d, rows, cols)
                         criticality[particles[j].get_position(d)] += 1
+                        k += 1
 
             print(
                 "gen: {} | t: {} | i: {} | Tf: {}".format(
