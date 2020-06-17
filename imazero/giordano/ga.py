@@ -65,9 +65,8 @@ class GiordanoGeneticAlgorithm:
             for mapping in mappings
         ]
 
-    def selection(self, population, fitness, k=2):
-        weigths = np.array(fitness) / np.sum(fitness)
-        return choices(population, weights=weigths, k=k)
+    def selection(self, population, k=2):
+        return choices(population, k=k)
 
     def run(self, X, y):
         t = 0
@@ -83,7 +82,7 @@ class GiordanoGeneticAlgorithm:
             for _ in range(self.num_exec):
                 choice = random()
 
-                parent_a, parent_b = self.selection(population, fitness)
+                parent_a, parent_b = self.selection(population)
                 if choice < self.theta_r:
                     child, _ = self.crossover(parent_a, parent_b)
                 elif choice < self.theta_r + self.theta_u:
