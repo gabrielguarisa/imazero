@@ -1,7 +1,7 @@
 from math import sqrt, ceil
 import numpy as np
 from random import randint, choices, random
-from imazero.utils import random_mapping, argsort
+from imazero.utils import argsort
 from imazero.wisard import WiSARD
 from sklearn.model_selection import train_test_split
 
@@ -29,9 +29,9 @@ class GiordanoGeneticAlgorithm:
         self.lag = lag
         self.validation_size = validation_size
 
-    def _generate_random_population(self):
+    def _generate_initial_population(self):
         return [
-            random_mapping(self.tuple_size, self.entry_size)
+            np.arange(self.entry_size).reshape((-1, self.tuple_size))
             for _ in range(self.population_size)
         ]
 
@@ -70,7 +70,7 @@ class GiordanoGeneticAlgorithm:
 
     def run(self, X, y):
         t = 0
-        population = self._generate_random_population()
+        population = self._generate_initial_population()
         fitness = self.fitness_func(X, y, population)
         past_mean = np.mean(fitness)
         diff_counter = 0
@@ -89,7 +89,7 @@ class GiordanoGeneticAlgorithm:
                     child = self.mutation(parent_a)
                 else:
                     child = parent_a.copy()
-                    
+
                 offspring_population.append(child)
 
             offspring_fitness = self.fitness_func(X, y, offspring_population)
