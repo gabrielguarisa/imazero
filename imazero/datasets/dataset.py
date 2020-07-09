@@ -121,10 +121,12 @@ class Dataset:
         binarization_name,
         num_classes=0,
         entry_size=0,
+        shape=None,
     ):
-        shape = None
-        if np.array(train_images[0]).ndim == 2:
+        
+        if shape == None and np.array(train_images[0]).ndim == 2:
             shape = np.shape(train_images[0])
+
         method = get_preprocessing(binarization_name)
 
         binary_train_images = method.transform(train_images)
