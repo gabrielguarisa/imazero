@@ -1,6 +1,6 @@
 import os
 from .dataset import Dataset
-from .makers import make_mnist
+from .makers import make_mnist, make_cifar10
 import wisardpkg as wp
 
 
@@ -14,6 +14,8 @@ def get_dataset(dataset_name, binarization_name, folder="datasets/data/"):
         return Dataset.load(dataset_name, binarization_name, folder)
     elif dataset_name == "mnist" or dataset_name == "fashion":
         return make_mnist(dataset_name, binarization_name, folder)
+    elif dataset_name == "cifar10":
+        return make_cifar10(binarization_name, folder)
     else:
         raise Exception("Dataset not found!")
 
@@ -22,6 +24,8 @@ def get_shape(dataset_name):
     shapes = {
         "mnist": (28, 28),
         "fashion": (28, 28),
+        "ckp": (100,100),
+        "cifar10": (32,32),
     }
 
     return shapes[dataset_name]
