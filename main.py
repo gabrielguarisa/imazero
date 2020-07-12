@@ -13,7 +13,7 @@ from multiprocessing import cpu_count
 
 configurations = {
     "mnist": {
-        "binarizations": ["mt", "ot", "sv"],
+        "binarizations": ["mt", "ot", "lt"],
         "experiments": [
             *get_group_by_experiments(),
             *get_random_experiments(),
@@ -22,7 +22,7 @@ configurations = {
         ],
     },
     "fashion": {
-        "binarizations": ["mt", "ot", "sv"],
+        "binarizations": ["mt", "ot", "lt"],
         "experiments": [
             *get_group_by_experiments(),
             *get_random_experiments(),
@@ -31,7 +31,7 @@ configurations = {
         ],
     },
     "cifar10": {
-        "binarizations": ["mt", "ot", "sv"],
+        "binarizations": ["mt", "ot", "lt"],
         "experiments": [
             *get_group_by_experiments(),
             *get_random_experiments(),
@@ -40,7 +40,7 @@ configurations = {
         ],
     },
     "ckp": {
-        "binarizations": ["mt", "ot", "sv"],
+        "binarizations": ["mt", "ot", "lt"],
         "experiments": [
             *get_group_by_experiments(),
             *get_random_experiments(),

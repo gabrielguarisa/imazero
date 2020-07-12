@@ -34,7 +34,7 @@ class Dataset:
 
         self.X_train = np.array(self.X_train, dtype=np.uint8)
         self.X_test = np.array(self.X_test, dtype=np.uint8)
-        
+
         le = LabelEncoder()
         le.fit(self.y_train)
         self.y_train = np.array(le.transform(self.y_train), dtype=np.uint8)
@@ -123,11 +123,14 @@ class Dataset:
         entry_size=0,
         shape=None,
     ):
-        
+
         if shape == None and np.array(train_images[0]).ndim == 2:
             shape = np.shape(train_images[0])
 
         method = get_preprocessing(binarization_name)
+
+        if binarization_name == "sv":
+            method.shape = shape
 
         binary_train_images = method.transform(train_images)
         binary_test_images = method.transform(test_images)

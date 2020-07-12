@@ -1,6 +1,6 @@
 import os
 from .dataset import Dataset
-from .makers import make_mnist, make_cifar10
+from .makers import make_mnist, make_cifar10, make_ckp
 import wisardpkg as wp
 
 
@@ -16,6 +16,8 @@ def get_dataset(dataset_name, binarization_name, folder="datasets/data/"):
         return make_mnist(dataset_name, binarization_name, folder)
     elif dataset_name == "cifar10":
         return make_cifar10(binarization_name, folder)
+    elif dataset_name == "ckp":
+        return make_ckp(binarization_name, folder)
     else:
         raise Exception("Dataset not found!")
 

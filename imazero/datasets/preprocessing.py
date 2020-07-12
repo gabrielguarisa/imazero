@@ -1,6 +1,6 @@
 import numpy as np
 import math
-from skimage.filters import threshold_sauvola, threshold_yen, threshold_otsu
+from skimage.filters import threshold_sauvola, threshold_yen, threshold_otsu, threshold_local
 from scipy.ndimage import interpolation
 from sklearn.preprocessing import LabelBinarizer, LabelEncoder
 import wisardpkg as wp
@@ -88,6 +88,23 @@ class Sauvola(object):
         return binary_images
 
 
+class LocalThresholding(object):
+    def __init__(self, block_size=23, shape=None):
+        self.block_size = block_size
+        self.shape = shape
+
+    def transform(self, images):
+        binary_images = []
+
+        for i in range(len(images)):
+            image = np.array(images[i]).reshape(self.shape)
+            thresh_sauvola = threshold_local(image, block_size=self.block_size)
+            binary_img = np.where(image > thresh_sauvola, 1, 0)
+            binary_images.append(binary_img.ravel())
+
+        return binary_images
+
+
 class Yen(object):
     def __init__(self, shape=None):
         self.shape = shape
@@ -160,6 +177,8 @@ def get_preprocessing(binarization):
         return Otsu()
     elif binarization == "mtwd":
         return MeanThresholdingWithDeskew()
+    elif binarization == "lt":
+        return LocalThresholding()
     elif binarization == "th":
         return Thermometer()
     else:

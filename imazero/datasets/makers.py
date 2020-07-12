@@ -6,6 +6,7 @@ import wisardpkg as wp
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from cifar10_web import cifar10
+from imazero.utils import load_data
 
 
 def make_mnist(dataset_name, binarization_name, folder):
@@ -21,6 +22,7 @@ def make_mnist(dataset_name, binarization_name, folder):
         binarization_name,
         num_classes=10,
         entry_size=784,
+        shape=(28, 28),
     ).save(folder)
 
 
@@ -52,4 +54,24 @@ def make_cifar10(binarization_name, folder):
         num_classes=10,
         entry_size=1024,
         shape=(32, 32),
+    ).save(folder)
+
+
+def make_ckp(binarization_name, folder, raw_folder="datasets/raw/"):
+    train = load_data("{}ckp_train.pkl".format(raw_folder))
+    test = load_data("{}ckp_test.pkl".format(raw_folder))
+
+    num_classes = len(np.unique(train["labels"]))
+    entry_size = len(train["images"][0].ravel())
+
+    return Dataset.binarize(
+        train["images"],
+        train["labels"],
+        test["images"],
+        test["labels"],
+        dataset_name="ckp",
+        binarization_name=binarization_name,
+        num_classes=num_classes,
+        entry_size=entry_size,
+        shape=(100, 100),
     ).save(folder)
