@@ -4,6 +4,7 @@ from .template import TemplateExperiment
 from imazero.utils import get_mental_images, get_entropy_images, argsort
 import numpy as np
 from scipy.stats import skew, kurtosis
+from contexttimer import Timer
 
 
 class GroupByPolimapping(TemplateExperiment):
@@ -27,14 +28,26 @@ class GroupByPolimapping(TemplateExperiment):
             raise Exception("Metric not found!")
 
     def _calculate_score(self, ds, tuple_size):
-        mapping = {}
+        with Timer(factor=self.factor) as creation:
+            mapping = {}
+            for label, img in self._metric_images.items():
+                mapping[str(label)] = np.reshape(argsort(img), (-1, tuple_size))
 
-        for label, img in self._metric_images.items():
-            mapping[str(label)] = np.reshape(argsort(img), (-1, tuple_size))
+            wsd = wp.Wisard(tuple_size, mapping=mapping)
 
-        wsd = wp.Wisard(tuple_size, mapping=mapping)
-        wsd.train(ds.train)
-        return {"n": tuple_size, "accuracy": wsd.score(ds.test)}
+        with Timer(factor=self.factor) as training:
+            wsd.train(ds.train)
+
+        with Timer(factor=self.factor) as classification:
+            score = wsd.score(ds.test)
+
+        return {
+            "n": tuple_size,
+            "accuracy": score,
+            "creation_time": creation.elapsed,
+            "training_time": training.elapsed,
+            "classification_time": classification.elapsed,
+        }
 
 
 class GroupByMonomapping(TemplateExperiment):
@@ -71,6 +84,20 @@ class GroupByMonomapping(TemplateExperiment):
             raise Exception("Invalid function!")
 
     def _calculate_score(self, ds, tuple_size):
-        mapping = np.reshape(argsort(self._metric_image), (-1, tuple_size))
-        wsd = WiSARD(mapping).fit(ds.X_train, ds.y_train)
-        return {"n": tuple_size, "accuracy": wsd.score(ds.X_test, ds.y_test)}
+        with Timer(factor=self.factor) as creation:
+            mapping = np.reshape(argsort(self._metric_image), (-1, tuple_size))
+            wsd = WiSARD(mapping)
+
+        with Timer(factor=self.factor) as training:
+            wsd.fit(ds.X_train, ds.y_train)
+
+        with Timer(factor=self.factor) as classification:
+            score = wsd.score(ds.X_test, ds.y_test)
+
+        return {
+            "n": tuple_size,
+            "accuracy": score,
+            "creation_time": creation.elapsed,
+            "training_time": training.elapsed,
+            "classification_time": classification.elapsed,
+        }

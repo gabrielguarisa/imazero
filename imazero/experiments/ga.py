@@ -1,8 +1,9 @@
 from imazero.wisard import WiSARD
 from .template import TemplateExperiment
-from imazero.guarisa.ga import GuarisaGeneticAlgorithm
+from imazero.guarisa.ga import GuarisaGeneticAlgorithm, NewGeneticAlgorithm
 from imazero.giordano.ga import GiordanoGeneticAlgorithm
 from imazero.utils import valid_tuple_sizes
+from contexttimer import Timer
 
 
 class GuarisaGA(TemplateExperiment):
@@ -26,23 +27,32 @@ class GuarisaGA(TemplateExperiment):
         pass
 
     def _calculate_score(self, ds, tuple_size):
-        ga = GuarisaGeneticAlgorithm(
-            tuple_size,
-            ds.entry_size,
-            population_size=self.population_size,
-            num_exec=int(self.population_size / 2),
-            lag=self.lag, recognized_weight=2, recognized_rejected_weight=1, rejected_weight=1, misclassified_weight=2
-        )
-        mappings, gen = ga.run(ds.X_train, ds.y_train)
+        with Timer(factor=self.factor) as creation:
+            ga = GuarisaGeneticAlgorithm(
+                tuple_size=tuple_size,
+                entry_size=ds.entry_size,
+                population_size=self.population_size,
+                theta=0.8,
+                num_exec=int(self.population_size / 2),
+                lag=self.lag,
+                max_ittr=100,
+                validation_size=0.3,
+            )
+            mappings, gen = ga.run(ds.X_train, ds.y_train)
+            wsd = WiSARD(mappings[0])
 
-        score = (
-            WiSARD(mappings[0]).fit(ds.X_train, ds.y_train).score(ds.X_test, ds.y_test)
-        )
+        with Timer(factor=self.factor) as training:
+            wsd.fit(ds.X_train, ds.y_train)
+
+        with Timer(factor=self.factor) as classification:
+            score = wsd.score(ds.X_test, ds.y_test)
+
         return {
             "n": tuple_size,
             "accuracy": score,
-            "population_size": self.population_size,
-            "lag": self.lag,
+            "creation_time": creation.elapsed,
+            "training_time": training.elapsed,
+            "classification_time": classification.elapsed,
             "generations": gen,
         }
 
@@ -79,25 +89,100 @@ class GiordanoGA(TemplateExperiment):
         pass
 
     def _calculate_score(self, ds, tuple_size):
-        ga = GiordanoGeneticAlgorithm(
-            tuple_size,
-            ds.entry_size,
-            self.population_size,
-            self.theta_r,
-            self.theta_u,
-            num_exec=int(self.population_size / 2),
-        )
-        mappings, gen = ga.run(ds.X_train, ds.y_train)
+        with Timer(factor=self.factor) as creation:
+            ga = GiordanoGeneticAlgorithm(
+                tuple_size=tuple_size,
+                entry_size=ds.entry_size,
+                population_size=self.population_size,
+                theta_r=self.theta_r,
+                theta_u=self.theta_u,
+                num_exec=int(self.population_size / 2),
+                lag=self.lag,
+                max_ittr=100,
+            )
+            mappings, gen = ga.run(ds.X_train, ds.y_train)
+            wsd = WiSARD(mappings[0])
 
-        score = (
-            WiSARD(mappings[0]).fit(ds.X_train, ds.y_train).score(ds.X_test, ds.y_test)
-        )
+        with Timer(factor=self.factor) as training:
+            wsd.fit(ds.X_train, ds.y_train)
+
+        with Timer(factor=self.factor) as classification:
+            score = wsd.score(ds.X_test, ds.y_test)
+
         return {
             "n": tuple_size,
             "accuracy": score,
-            "population_size": self.population_size,
-            "lag": self.lag,
+            "creation_time": creation.elapsed,
+            "training_time": training.elapsed,
+            "classification_time": classification.elapsed,
             "generations": gen,
-            "theta_r": self.theta_r,
-            "theta_u": self.theta_u,
+        }
+
+
+class NewGA(TemplateExperiment):
+    def __init__(
+        self,
+        population_size,
+        recognized_weight,
+        recognized_rejected_weight,
+        misclassified_weight,
+        rejected_weight,
+        lag=5,
+        save=True,
+        folder="results/",
+        num_exec=20,
+    ):
+        self.population_size = population_size
+        self.lag = 5
+        self.recognized_weight = recognized_weight
+        self.recognized_rejected_weight = recognized_rejected_weight
+        self.rejected_weight = rejected_weight
+        self.misclassified_weight = misclassified_weight
+
+        header_map = {
+            "n": int,
+            "accuracy": float,
+            "population_size": int,
+            "lag": int,
+            "generations": int,
+        }
+        super().__init__(
+            "NewGeneticAlgorithm", header_map, save, folder, num_exec,
+        )
+
+    def _prep(self, ds):
+        pass
+
+    def _calculate_score(self, ds, tuple_size):
+        with Timer(factor=self.factor) as creation:
+            ga = NewGeneticAlgorithm(
+                tuple_size=tuple_size,
+                entry_size=ds.entry_size,
+                population_size=self.population_size,
+                theta=0.8,
+                num_exec=int(self.population_size / 2),
+                lag=self.lag,
+                max_ittr=100,
+                validation_size=0.3,
+                recognized_weight=self.recognized_weight,
+                recognized_rejected_weight=self.recognized_rejected_weight,
+                misclassified_weight=self.misclassified_weight,
+                rejected_weight=self.rejected_weight,
+            )
+            mappings, gen = ga.run(ds.X_train, ds.y_train)
+            wsd = WiSARD(mappings[0])
+
+        with Timer(factor=self.factor) as training:
+            wsd.fit(ds.X_train, ds.y_train)
+
+        with Timer(factor=self.factor) as classification:
+            score = wsd.score(ds.X_test, ds.y_test)
+
+        return {
+            "n": tuple_size,
+            "accuracy": score,
+            "creation_time": creation.elapsed,
+            "training_time": training.elapsed,
+            "classification_time": classification.elapsed,
+            "generations": gen,
         }

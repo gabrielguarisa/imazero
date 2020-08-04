@@ -9,6 +9,7 @@ from imazero.wcsp.wcsp import (
     get_intersection_restrictions_and_priorities,
     get_exlusive_restrictions_and_priorities,
 )
+from contexttimer import Timer
 
 
 class ConstraintsPolimapping(TemplateExperiment):
@@ -26,21 +27,29 @@ class ConstraintsPolimapping(TemplateExperiment):
         )
 
     def _calculate_score(self, ds, tuple_size):
-        mapping = {}
-        for label, choice_priorities in self.priorities.items():
-            mapping[str(label)] = create_mapping_by_restrictions(
-                self.restrictions[label],
-                choice_priorities_to_priority_of_choice(choice_priorities),
-                tuple_size,
-                ds.entry_size,
-            )
+        with Timer(factor=self.factor) as creation:
+            mapping = {}
+            for label, choice_priorities in self.priorities.items():
+                mapping[str(label)] = create_mapping_by_restrictions(
+                    self.restrictions[label],
+                    choice_priorities_to_priority_of_choice(choice_priorities),
+                    tuple_size,
+                    ds.entry_size,
+                )
+            wsd = wp.Wisard(tuple_size, mapping=mapping)
 
-        wsd = wp.Wisard(tuple_size, mapping=mapping)
-        wsd.train(ds.train)
+        with Timer(factor=self.factor) as training:
+            wsd.train(ds.train)
+
+        with Timer(factor=self.factor) as classification:
+            score = wsd.score(ds.test)
+
         return {
             "n": tuple_size,
-            "accuracy": wsd.score(ds.test),
-            "finder": self.finder.get_name(),
+            "accuracy": score,
+            "creation_time": creation.elapsed,
+            "training_time": training.elapsed,
+            "classification_time": classification.elapsed,
         }
 
 
@@ -74,16 +83,26 @@ class ConstraintsMonomapping(TemplateExperiment):
         )
 
     def _calculate_score(self, ds, tuple_size):
-        wsd = WiSARD(
-            create_mapping_by_restrictions(
-                self.restrictions,
-                choice_priorities_to_priority_of_choice(self.priorities),
-                tuple_size,
-                ds.entry_size,
+        with Timer(factor=self.factor) as creation:
+            wsd = WiSARD(
+                create_mapping_by_restrictions(
+                    self.restrictions,
+                    choice_priorities_to_priority_of_choice(self.priorities),
+                    tuple_size,
+                    ds.entry_size,
+                )
             )
-        ).fit(ds.X_train, ds.y_train)
+
+        with Timer(factor=self.factor) as training:
+            wsd.fit(ds.X_train, ds.y_train)
+
+        with Timer(factor=self.factor) as classification:
+            score = wsd.score(ds.X_test, ds.y_test)
+
         return {
             "n": tuple_size,
-            "accuracy": wsd.score(ds.X_test, ds.y_test),
-            "finder": self.finder.get_name(),
+            "accuracy": score,
+            "creation_time": creation.elapsed,
+            "training_time": training.elapsed,
+            "classification_time": classification.elapsed,
         }

@@ -1,5 +1,6 @@
 import datasets
 
+
 def experiment_runner(experiment, dataset_name, binarization_name):
     from imazero.datasets import get_dataset
 
@@ -54,7 +55,7 @@ def get_stochastic_experiments():
         AzharStochasticSearch,
         GuarisaStochasticSearch,
     )
-    from imazero.experiments.ga import GuarisaGA, GiordanoGA
+    from imazero.experiments.ga import GuarisaGA, GiordanoGA, NewGA
 
     return [
         AzharStochasticSearch(
@@ -77,8 +78,15 @@ def get_stochastic_experiments():
             learning_rate=100,
             inertia_weight=0.2,
         ),
-        GuarisaGA(10),
         GiordanoGA(10),
+        # NewGA(
+        #     10,
+        #     recognized_weight=39.0,
+        #     recognized_rejected_weight=19.5,
+        #     misclassified_weight=-0.5,
+        #     rejected_weight=-1.0,
+        # ),
+        GuarisaGA(10),
     ]
 
 
