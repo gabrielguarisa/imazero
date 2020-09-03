@@ -32,6 +32,7 @@ setup(
         "get-mnist==0.2.2",
         "seaborn",
         "Pillow",
+        "cifar10-web"
     ],
     keywords=["wisard", "weithgless", "neural", "net"],
     classifiers=["License :: OSI Approved :: MIT License"],

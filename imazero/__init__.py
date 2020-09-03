@@ -1,6 +1,3 @@
-import datasets
-
-
 def experiment_runner(experiment, dataset_name, binarization_name):
     from imazero.datasets import get_dataset
 
